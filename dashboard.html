@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCu2_pBCiCNEqEfyKRVMPntCUOUh5AUUw",
+            authDomain: "adtikets.firebaseapp.com",
+            projectId: "adtikets",
+            storageBucket: "adtikets.firebasestorage.app",
+            messagingSenderId: "424819454675",
+            appId: "1:424819454675:web:5f2f07b15da9ce191d1a26"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Verificar si hay un usuario autenticado
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = "index.html";
+            } else {
+                document.getElementById("nav-header").classList.remove("hidden");
+                cargarDatos();
+            }
+        });
+        
+        async function cargarDatos() {
+            const ticketsSnapshot = await getDocs(collection(db, "tickets"));
+            const totalTickets = ticketsSnapshot.size;
+            document.getElementById("total-tickets").innerText = totalTickets;
+        }
+
+        // Función para cerrar sesión
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        };
+    </script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <header id="nav-header" class="bg-gray-800 p-4 flex justify-between hidden">
+        <h1 class="text-xl font-bold">Dashboard</h1>
+        <nav>
+            <ul class="flex gap-4">
+                <li><a href="crear_ticket.html" class="hover:underline">Crear Ticket</a></li>
+                <li><a href="lista_tickets.html" class="hover:underline">Lista de Tickets</a></li>
+                <li><a href="perfil.html" class="hover:underline">Perfil</a></li>
+                <li><button onclick="logout()" class="text-red-400 hover:underline">Cerrar Sesión</button></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main class="p-8">
+        <h2 class="text-2xl font-bold mb-4">Resumen General</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <h3 class="text-lg">Total de Tickets</h3>
+                <p id="total-tickets" class="text-4xl font-bold">0</p>
+            </div>
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <h3 class="text-lg">Estado de Tickets</h3>
+                <canvas id="chartEstadoTickets"></canvas>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const ctx = document.getElementById('chartEstadoTickets').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Abiertos', 'En Proceso', 'Cerrados'],
+                datasets: [{
+                    label: 'Tickets',
+                    data: [10, 5, 15],
+                    backgroundColor: ['#ff6384', '#ffcd56', '#36a2eb']
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
+</body>
+</html>

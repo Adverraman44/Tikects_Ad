@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://kit.fontawesome.com/YOUR_FONT_AWESOME_KIT.js" crossorigin="anonymous"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js"></script>
+    
+    <script type="module">
+        // Importar Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCu2_pBCiCNEqEfyKRVMPntCUOUh5AUUw",
+            authDomain: "adtikets.firebaseapp.com",
+            projectId: "adtikets",
+            storageBucket: "adtikets.firebasestorage.app",
+            messagingSenderId: "424819454675",
+            appId: "1:424819454675:web:5f2f07b15da9ce191d1a26"
+        };
+        
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        
+        // Verificar si hay un usuario autenticado
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById("nav-header").classList.remove("hidden");
+            }
+        });
+        
+        // Función para iniciar sesión con correo y contraseña
+        window.login = function() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const errorMessage = document.getElementById("error-message");
+            
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => window.location.href = "dashboard.html")
+                .catch(error => {
+                    errorMessage.innerText = error.message;
+                    errorMessage.classList.remove("hidden");
+                });
+        };
+        
+        // Función para iniciar sesión con Google
+        window.loginGoogle = function() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider)
+                .then(() => window.location.href = "dashboard.html")
+                .catch(error => {
+                    document.getElementById("error-message").innerText = error.message;
+                });
+        };
+        
+        // Función para cerrar sesión
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = "index.html";
+            });
+        };
+    </script>
+</head>
+<body class="bg-gray-900 flex flex-col items-center min-h-screen">
+    <!-- Encabezado de Navegación (Oculto por defecto) -->
+    <header id="nav-header" class="bg-gray-800 w-full p-4 text-white flex justify-between hidden">
+        <h1 class="text-xl font-bold">Sistema de Tickets</h1>
+        <nav>
+            <ul class="flex gap-4">
+                <li><a href="dashboard.html" class="hover:underline">Dashboard</a></li>
+                <li><a href="perfil.html" class="hover:underline">Perfil</a></li>
+                <li><button onclick="logout()" class="text-red-400 hover:underline">Cerrar Sesión</button></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div id="login-box" class="bg-white p-8 rounded-lg shadow-lg w-96 text-center mt-10">
+        <h1 class="text-2xl font-bold mb-4">Iniciar Sesión</h1>
+        
+        <!-- Formulario de Login -->
+        <input id="email" type="email" placeholder="Correo Electrónico" class="w-full p-2 mb-2 border rounded" />
+        <input id="password" type="password" placeholder="Contraseña" class="w-full p-2 mb-4 border rounded" />
+        <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Ingresar</button>
+        
+        <div class="mt-4 text-gray-600">O inicia sesión con:</div>
+        <button onclick="loginGoogle()" class="mt-2 w-full bg-red-600 text-white py-2 rounded flex items-center justify-center gap-2">
+            <i class="fab fa-google"></i> Google
+        </button>
+        
+        <p id="error-message" class="text-red-500 mt-2 hidden"></p>
+    </div>
+    
+    <script>
+        // Animación de entrada con Anime.js
+        anime({
+            targets: "#login-box",
+            opacity: [0, 1],
+            translateY: [-50, 0],
+            duration: 1000,
+            easing: "easeOutExpo"
+        });
+    </script>
+</body>
+</html>

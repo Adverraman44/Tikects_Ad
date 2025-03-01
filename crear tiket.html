@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Ticket</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/YOUR_FONT_AWESOME_KIT.js" crossorigin="anonymous"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js"></script>
+    
+    <script type="module">
+        // Importar Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        
+        // Configuración de Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCu2_pBCiCNEqEfyKRVMPntCUOUh5AUUw",
+            authDomain: "adtikets.firebaseapp.com",
+            projectId: "adtikets",
+            storageBucket: "adtikets.firebasestorage.app",
+            messagingSenderId: "424819454675",
+            appId: "1:424819454675:web:5f2f07b15da9ce191d1a26"
+        };
+        
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        // Función para crear un nuevo ticket
+        window.createTicket = async function() {
+            const title = document.getElementById("title").value;
+            const description = document.getElementById("description").value;
+            const priority = document.getElementById("priority").value;
+            const message = document.getElementById("message");
+            
+            try {
+                await addDoc(collection(db, "tickets"), {
+                    title: title,
+                    description: description,
+                    priority: priority,
+                    status: "Pendiente",
+                    createdAt: new Date()
+                });
+                message.innerText = "¡Ticket creado exitosamente!";
+                message.classList.remove("hidden");
+            } catch (error) {
+                message.innerText = "Error al crear el ticket: " + error.message;
+                message.classList.remove("hidden");
+            }
+        };
+    </script>
+</head>
+<body class="bg-gray-900 flex flex-col items-center min-h-screen text-white">
+    <header class="bg-gray-800 w-full p-4 flex justify-between">
+        <h1 class="text-xl font-bold">Sistema de Tickets</h1>
+        <nav>
+            <ul class="flex gap-4">
+                <li><a href="dashboard.html" class="hover:underline">Dashboard</a></li>
+                <li><a href="perfil.html" class="hover:underline">Perfil</a></li>
+                <li><a href="lista_tickets.html" class="hover:underline">Lista de Tickets</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="bg-white text-black p-8 rounded-lg shadow-lg w-96 text-center mt-10">
+        <h1 class="text-2xl font-bold mb-4">Crear Ticket</h1>
+        
+        <input id="title" type="text" placeholder="Título" class="w-full p-2 mb-2 border rounded" />
+        <textarea id="description" placeholder="Descripción" class="w-full p-2 mb-2 border rounded"></textarea>
+        <select id="priority" class="w-full p-2 mb-4 border rounded">
+            <option value="Alta">Alta</option>
+            <option value="Media">Media</option>
+            <option value="Baja">Baja</option>
+        </select>
+        
+        <button onclick="createTicket()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Crear Ticket</button>
+        <p id="message" class="text-green-500 mt-2 hidden"></p>
+    </div>
+</body>
+</html>
+

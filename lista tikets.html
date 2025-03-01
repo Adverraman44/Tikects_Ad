@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tickets</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCu2_pBCiCNEqEfyKRVMPntCUOUh5AUUw",
+            authDomain: "adtikets.firebaseapp.com",
+            projectId: "adtikets",
+            storageBucket: "adtikets.firebasestorage.app",
+            messagingSenderId: "424819454675",
+            appId: "1:424819454675:web:5f2f07b15da9ce191d1a26"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        
+        async function loadTickets() {
+            const ticketsList = document.getElementById("tickets-list");
+            ticketsList.innerHTML = "";
+            const querySnapshot = await getDocs(collection(db, "tickets"));
+            querySnapshot.forEach((doc) => {
+                const ticket = doc.data();
+                const listItem = document.createElement("li");
+                listItem.className = "p-4 border-b border-gray-600";
+                listItem.innerHTML = `<strong>${ticket.title}</strong> - ${ticket.priority} - ${ticket.status}`;
+                ticketsList.appendChild(listItem);
+            });
+        }
+        
+        window.onload = loadTickets;
+    </script>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center min-h-screen">
+    <header class="bg-gray-800 w-full p-4 flex justify-between">
+        <h1 class="text-xl font-bold">Sistema de Tickets</h1>
+        <nav>
+            <ul class="flex gap-4">
+                <li><a href="dashboard.html" class="hover:underline">Dashboard</a></li>
+                <li><a href="crear_ticket.html" class="hover:underline">Crear Ticket</a></li>
+                <li><a href="perfil.html" class="hover:underline">Perfil</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="bg-white text-black p-8 rounded-lg shadow-lg w-96 text-center mt-10">
+        <h1 class="text-2xl font-bold mb-4">Lista de Tickets</h1>
+        <ul id="tickets-list" class="text-left"></ul>
+    </div>
+</body>
+</html>
