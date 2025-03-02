@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js"></script>
+    <script type="module" src="https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js"></script>
+    
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getAuth, signOut, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCu2_pBCiCNEqEfyKRVMPntCUOUh5AUUw",
+            authDomain: "adtikets.firebaseapp.com",
+            projectId: "adtikets",
+            storageBucket: "adtikets.firebasestorage.app",
+            messagingSenderId: "424819454675",
+            appId: "1:424819454675:web:5f2f07b15da9ce191d1a26"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth();
+        const db = getFirestore(app);
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                document.getElementById("email").value = user.email;
+                document.getElementById("name").value = user.displayName || "";
+                
+                const userRef = doc(db, "users", user.uid);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    document.getElementById("name").value = userSnap.data().name || "";
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+        
+        window.updateProfile = async function() {
+            const user = auth.currentUser;
+            const newName = document.getElementById("name").value;
+            
+            if (user) {
+                await updateProfile(user, { displayName: newName });
+                await updateDoc(doc(db, "users", user.uid), { name: newName });
+                alert("Perfil actualizado correctamente.");
+            }
+        };
+        
+        window.logout = function() {
+            signOut(auth).then(() => {
+                window.location.href = "login.html";
+            });
+        };
+    </script>
+</head>
+<body class="bg-gray-900 text-white flex flex-col items-center min-h-screen">
+    <header class="bg-gray-800 w-full p-4 flex justify-between">
+        <h1 class="text-xl font-bold">Sistema de Tickets</h1>
+        <nav>
+            <ul class="flex gap-4">
+                <li><a href="dashboard.html" class="hover:underline">Dashboard</a></li>
+                <li><a href="lista_tickets.html" class="hover:underline">Lista de Tickets</a></li>
+                <li><a href="perfil.html" class="hover:underline">Perfil</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <div class="bg-white text-black p-8 rounded-lg shadow-lg w-96 text-center mt-10">
+        <h1 class="text-2xl font-bold mb-4">Perfil</h1>
+        <input id="email" type="email" disabled class="w-full p-2 mb-2 border rounded bg-gray-200" />
+        <input id="name" type="text" placeholder="Nombre" class="w-full p-2 mb-2 border rounded" />
+        
+        <button onclick="updateProfile()" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Actualizar Perfil</button>
+        <button onclick="logout()" class="w-full bg-red-600 text-white py-2 mt-2 rounded hover:bg-red-700">Cerrar Sesión</button>
+    </div>
+</body>
+</html>
